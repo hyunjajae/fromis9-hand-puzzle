@@ -1,0 +1,143 @@
+/* =============================================================
+   기본 스타일 (style.css)
+   화면을 꽉 채우고, 웹캠 영상을 거울 모드로 보여줍니다.
+   ============================================================= */
+
+/* 모든 요소의 기본 여백 제거 + 박스 크기 계산 방식 통일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden; /* 스크롤바가 생기지 않게 */
+  font-family: 'Malgun Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* 앱 전체 무대: 화면 전체를 차지 */
+#stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 웹캠 영상: 화면을 꽉 채우되 비율을 유지(넘치는 부분은 잘림) */
+#webcam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 거울 모드: 좌우 반전 (셀카처럼) */
+#webcam.mirror {
+  transform: scaleX(-1);
+}
+
+/* 손 관절을 그리는 오버레이 캔버스: 웹캠 영상과 똑같은 위치·크기로 정확히 겹침 */
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 영상과 동일하게 화면을 채우도록(잘림 포함) → 손 위치가 정확히 일치 */
+  pointer-events: none; /* 마우스 클릭을 방해하지 않게 */
+  z-index: 5;
+}
+
+/* 오버레이도 영상과 똑같이 좌우 반전시켜야 손 그림이 영상 위에 맞게 올라감 */
+#overlay.mirror {
+  transform: scaleX(-1);
+}
+
+/* 손가락 커서 (검지 끝을 따라다니는 동그라미) — 양손이라 클래스로 여러 개 사용
+   ※ 위치/크기/색은 JS(main.js)에서 매 프레임 갱신합니다. */
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  pointer-events: none; /* 마우스 클릭 방해 안 하게 */
+  opacity: 0;           /* 손이 보일 때만 JS 가 나타나게 함 */
+  z-index: 30;
+  will-change: transform; /* 부드러운 움직임을 위한 최적화 힌트 */
+  transition: background-color 0.1s ease, opacity 0.15s ease;
+}
+
+/* PixiJS 밈 렌더링 캔버스 (JS 가 자동으로 만들어 stage 에 끼워 넣습니다) */
+#pixi {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* 마우스 클릭 방해 안 하게 */
+  z-index: 4;           /* 영상 위, 손 오버레이/커서 아래 */
+}
+
+/* 퍼즐 완성 시 재생되는 밈 영상 (화면 중앙, 완성된 퍼즐 그림 위로 페이드인) */
+#reveal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;       /* 완성 퍼즐과 같은 정사각 영역을 꽉 채우게 */
+  background: #000;
+  border-radius: 6px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  opacity: 0;              /* 평소 숨김 → 재생 시 JS 가 1 로 */
+  transition: opacity 0.5s ease;
+  z-index: 25;             /* 퍼즐(4)·손오버레이(5) 위, 커서(30) 아래 */
+  pointer-events: none;
+  display: none;
+}
+
+/* 카메라 준비/에러 안내 메시지 (화면 정중앙) */
+#overlay-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: pre-line; /* 코드에서 넣은 \n 줄바꿈이 화면에 반영되게 */
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px 28px;
+  border-radius: 12px;
+  max-width: 80%;
+  z-index: 20;
+}
+
+/* HUD: 현재 단계 + 조작 안내 (왼쪽 위에 작게) */
+#hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #fff;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.5;
+  pointer-events: none; /* 마우스 클릭을 방해하지 않게 */
+  z-index: 10;
+}
+
+#hud-state {
+  font-weight: 700;
+}
+
+#hud-help {
+  opacity: 0.85;
+}

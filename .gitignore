@@ -1,0 +1,11 @@
+# Node 패키지 폴더 (용량 크고 npm install 로 언제든 다시 생성됨 → 깃에 안 올림)
+node_modules
+
+# Vite 빌드 결과물
+dist
+
+# 로그/시스템 파일
+*.log
+.DS_Store
+Thumbs.db
+.env

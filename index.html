@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fromis_9 손 인식 밈 퍼즐</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- 앱 전체를 담는 무대(스테이지).
+         지금은 웹캠 영상만 들어있지만, 다음 단계에서 손 오버레이/밈/퍼즐이 이 위에 쌓입니다. -->
+    <div id="stage">
+      <!-- 웹캠 영상. 거울 모드(좌우 반전)는 style.css 의 .mirror 클래스에서 처리합니다. -->
+      <video id="webcam" playsinline></video>
+
+      <!-- 손 관절 점·선을 그리는 투명 캔버스. 영상 위에 정확히 겹쳐 놓습니다. -->
+      <canvas id="overlay"></canvas>
+
+      <!-- 손가락 커서(div)는 양손 각각 main.js 에서 동적으로 만들어 붙입니다. -->
+
+      <!-- 퍼즐 완성 시 그 밈 영상을 중앙에서 재생 (7단계 REVEAL) -->
+      <video id="reveal" playsinline></video>
+
+      <!-- 카메라 준비/권한/에러 안내 메시지를 띄우는 곳 -->
+      <div id="overlay-message">카메라를 준비하는 중...</div>
+
+      <!-- HUD: 화면 한쪽에 현재 단계와 조작 안내를 작게 표시 (다음 단계에서 실제로 활용) -->
+      <div id="hud">
+        <div id="hud-state">1단계 · 웹캠 테스트</div>
+        <div id="hud-help">셀카처럼 좌우가 반전되어 보이면 정상입니다</div>
+      </div>
+    </div>
+
+    <!-- 앱 시작점. type="module" 이라서 import/export 문법을 쓸 수 있습니다. -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
