@@ -28,6 +28,8 @@ class MemeItem {
     this.ghostR.alpha = 0;
     this.ghostB.alpha = 0;
     this.container.addChild(this.ghostR, this.main, this.ghostB);
+    // 로딩~소환 전까지 절대 안 보이게. (안 하면 첫 프레임에 좌상단(0,0)에 큰 밈이 깜빡임)
+    this.container.alpha = 0;
 
     // 현재 상태(실제 표시값)
     this.x = 0; this.y = 0; this.scale = 0.1; this.alpha = 0;
