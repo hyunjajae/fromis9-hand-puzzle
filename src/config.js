@@ -4,6 +4,10 @@
 // 이것저것 조절하고 싶으면 항상 여기부터 보세요. (저장하면 화면 자동 새로고침)
 // =============================================================
 
+// GitHub Pages 같은 하위 경로 배포에서도 이미지/영상 경로가 깨지지 않도록,
+// Vite 가 알려주는 BASE_URL(예: '/fromis9-hand-puzzle/')을 앞에 붙여줍니다.
+const BASE = import.meta.env.BASE_URL;
+
 export const CONFIG = {
   // ----- 웹캠 설정 -----
   webcam: {
@@ -48,16 +52,16 @@ export const CONFIG = {
   // 진짜 파일이 생기면 public/memes/ 에 같은 이름으로 덮어쓰면 됩니다.
   // 추가/삭제는 이 배열만 고치면 돼요. (영상 mp4 는 7단계 REVEAL 에서 사용)
   memes: [
-    { id: 'meme1', image: '/memes/meme1.png', video: '/memes/meme1.mp4' },
-    { id: 'meme2', image: '/memes/meme2.png', video: '/memes/meme2.mp4' },
-    { id: 'meme3', image: '/memes/meme3.png', video: '/memes/meme3.mp4' },
-    { id: 'meme4', image: '/memes/meme4.png', video: '/memes/meme4.mp4' },
-    { id: 'meme5', image: '/memes/meme5.png', video: '/memes/meme5.mp4' },
-    { id: 'meme6', image: '/memes/meme6.png', video: '/memes/meme6.mp4' },
-    { id: 'meme7', image: '/memes/meme7.png', video: '/memes/meme7.mp4' },
-    { id: 'meme8', image: '/memes/meme8.png', video: '/memes/meme8.mp4' },
-    { id: 'meme9', image: '/memes/meme9.png', video: '/memes/meme9.mp4' },
-    { id: 'meme10', image: '/memes/meme10.png', video: '/memes/meme10.mp4' },
+    { id: 'meme1', image: BASE + 'memes/meme1.png', video: BASE + 'memes/meme1.mp4' },
+    { id: 'meme2', image: BASE + 'memes/meme2.png', video: BASE + 'memes/meme2.mp4' },
+    { id: 'meme3', image: BASE + 'memes/meme3.png', video: BASE + 'memes/meme3.mp4' },
+    { id: 'meme4', image: BASE + 'memes/meme4.png', video: BASE + 'memes/meme4.mp4' },
+    { id: 'meme5', image: BASE + 'memes/meme5.png', video: BASE + 'memes/meme5.mp4' },
+    { id: 'meme6', image: BASE + 'memes/meme6.png', video: BASE + 'memes/meme6.mp4' },
+    { id: 'meme7', image: BASE + 'memes/meme7.png', video: BASE + 'memes/meme7.mp4' },
+    { id: 'meme8', image: BASE + 'memes/meme8.png', video: BASE + 'memes/meme8.mp4' },
+    { id: 'meme9', image: BASE + 'memes/meme9.png', video: BASE + 'memes/meme9.mp4' },
+    { id: 'meme10', image: BASE + 'memes/meme10.png', video: BASE + 'memes/meme10.mp4' },
 
   ],
 

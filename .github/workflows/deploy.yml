@@ -1,0 +1,46 @@
+# main 브랜치에 푸시할 때마다 자동으로 빌드 → GitHub Pages 배포
+# (이제부터는 dist 폴더를 직접 올릴 필요 없이, 그냥 git push만 하면 됩니다)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 받기
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 패키지 설치
+        run: npm ci
+
+      - name: 빌드 (vite build → dist 폴더 생성)
+        run: npm run build
+
+      - name: Pages 설정
+        uses: actions/configure-pages@v5
+
+      - name: dist 폴더 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: GitHub Pages 에 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
