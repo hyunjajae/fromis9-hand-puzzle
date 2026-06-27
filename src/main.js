@@ -7,7 +7,7 @@
 // 취소/뒤로는 ESC 키
 // =============================================================
 
-import { CONFIG } from './config.js';
+import { CONFIG, gestureScale } from './config.js';
 import { startWebcam } from './webcam.js';
 import { createHandLandmarker } from './handTracking.js';
 import { GestureTracker } from './gestures.js';
@@ -190,16 +190,18 @@ function renderLoop() {
 function detectGestures(both, gap, center, now) {
   const bothPinch = trackers.Left.pinch && trackers.Right.pinch;
   const bothOpen = trackers.Left.open && trackers.Right.open;
+  // 화면이 작으면(모바일) 양손 간격 기준값들을 같은 비율로 줄여서 손이 끝까지 닿게 함
+  const gs = gestureScale();
 
   if (appState === 'IDLE') {
-    if (both && bothPinch && gap < CONFIG.summon.closeGap) {
+    if (both && bothPinch && gap < CONFIG.summon.closeGap * gs) {
       summonArmed = true;
       summonArmedTime = now;
     }
     if (summonArmed) {
       if (now - summonArmedTime > CONFIG.summon.armWindow * 1000) {
         summonArmed = false;
-      } else if (both && gap > CONFIG.summon.openGap) {
+      } else if (both && gap > CONFIG.summon.openGap * gs) {
         summonArmed = false;
         appState = 'SUMMONED';
         browseScene.summon(center);
@@ -291,7 +293,7 @@ function checkStretchToPuzzle() {
   const hands = buildGrabInfo().hands;
   if (hands.length >= 2) {
     const gp = Math.hypot(hands[0].x - hands[1].x, hands[0].y - hands[1].y);
-    if (gp >= CONFIG.stretch.puzzleGap) startPuzzle();
+    if (gp >= CONFIG.stretch.puzzleGap * gestureScale()) startPuzzle();
   }
 }
 
@@ -458,7 +460,7 @@ function updateHud(gap, both) {
     if (n >= 2) {
       const hands = buildGrabInfo().hands;
       const gp = hands.length >= 2 ? Math.round(Math.hypot(hands[0].x - hands[1].x, hands[0].y - hands[1].y)) : 0;
-      hudHelpEl.textContent = `양손으로 잡음 · 더 벌리면 퍼즐! (${gp} / ${CONFIG.stretch.puzzleGap})`;
+      hudHelpEl.textContent = `양손으로 잡음 · 더 벌리면 퍼즐! (${gp} / ${Math.round(CONFIG.stretch.puzzleGap * gestureScale())})`;
     } else {
       hudHelpEl.textContent = '끌어서 이동 · 다른 손으로 같이 잡고 벌리면 퍼즐 · (손 놓으면 취소)';
     }

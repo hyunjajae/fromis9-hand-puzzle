@@ -131,4 +131,23 @@ export const CONFIG = {
     startDelayMs: 450,  // 퍼즐 완성 후 영상이 뜨기까지 딜레이(ms) — 완성된 그림을 잠깐 보여줌
     fadeMs: 500,        // 영상이 부드럽게 나타나는 시간(ms)
   },
+
+  // ----- 반응형(모바일 대응) 설정 -----
+  // summon.closeGap/openGap, stretch.puzzleGap 같은 '양손 간격(px)' 기준 제스처 값들은
+  // 데스크톱 화면(가로 1280px 정도)에서 손으로 직접 재서 정한 값이에요.
+  // 화면이 그보다 작으면(모바일) 같은 비율로 줄여줘서, 작은 화면에서도 양손을 끝까지
+  // 벌리면 닿을 수 있게 합니다. gestureScale() 이 이 비율을 계산해줘요.
+  // (데스크톱처럼 화면이 referenceWidth 이상이면 비율이 1로 고정 → 동작 그대로 유지)
+  responsive: {
+    referenceWidth: 1280, // 이 화면 너비를 '기준 100%'로 삼습니다.
+    minScale: 0.45,       // 아주 작은 화면에서도 최소 이 비율까지는 유지(너무 작아지면 오작동)
+  },
 };
+
+// 지금 화면 크기 기준으로 '양손 간격' 제스처 값에 곱해줄 비율(0~1).
+// 화면이 작을수록(모바일) 작아져서, 같은 손동작이 더 쉽게 인식되게 합니다.
+export function gestureScale() {
+  const minSide = Math.min(window.innerWidth, window.innerHeight);
+  const ratio = minSide / CONFIG.responsive.referenceWidth;
+  return Math.min(1, Math.max(CONFIG.responsive.minScale, ratio));
+}
