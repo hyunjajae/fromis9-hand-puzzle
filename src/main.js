@@ -22,6 +22,7 @@ const canvasEl = document.getElementById('overlay');
 const messageEl = document.getElementById('overlay-message');
 const hudStateEl = document.getElementById('hud-state');
 const hudHelpEl = document.getElementById('hud-help');
+const backBtnEl = document.getElementById('back-btn');
 
 const ctx = canvasEl.getContext('2d');
 
@@ -96,6 +97,8 @@ async function init() {
     setStateLabel();
     window.addEventListener('resize', () => browseScene.layout());
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') onCancel(); });
+    // ESC 키가 없는 모바일용 뒤로가기 버튼 (PC에서도 클릭으로 대체 가능)
+    backBtnEl.addEventListener('click', onCancel);
 
     requestAnimationFrame(renderLoop);
   } catch (err) {

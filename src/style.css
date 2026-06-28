@@ -142,3 +142,24 @@ body {
 #hud-help {
   opacity: 0.85;
 }
+
+/* 뒤로가기 버튼: ESC 키가 없는 모바일에서 꼭 필요하고, PC에서도 클릭으로 대체 가능.
+   #hud 전체는 pointer-events:none 이라 버튼만 따로 다시 켜줍니다. */
+#back-btn {
+  display: block;
+  margin-top: 8px;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent; /* 모바일 탭 시 회색 깜빡임 제거 */
+}
+
+#back-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+}
