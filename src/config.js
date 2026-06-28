@@ -140,14 +140,26 @@ export const CONFIG = {
   // (데스크톱처럼 화면이 referenceWidth 이상이면 비율이 1로 고정 → 동작 그대로 유지)
   responsive: {
     referenceWidth: 1280, // 이 화면 너비를 '기준 100%'로 삼습니다.
-    minScale: 0.45,       // 아주 작은 화면에서도 최소 이 비율까지는 유지(너무 작아지면 오작동)
+    minScale: 0.45,       // 제스처 거리 기준값의 최소 비율(너무 작아지면 오작동하니 하한선)
+    visualMinScale: 0.3,  // 이미지/크기(밈, 소환 원, 퍼즐 보드 등)의 최소 비율 — 더 작아져도 안전
   },
 };
+
+// 화면 크기 비율(0~1 사이, 항상 같은 계산식). 작을수록(모바일) 더 작은 값.
+function _screenRatio() {
+  const minSide = Math.min(window.innerWidth, window.innerHeight);
+  return minSide / CONFIG.responsive.referenceWidth;
+}
 
 // 지금 화면 크기 기준으로 '양손 간격' 제스처 값에 곱해줄 비율(0~1).
 // 화면이 작을수록(모바일) 작아져서, 같은 손동작이 더 쉽게 인식되게 합니다.
 export function gestureScale() {
-  const minSide = Math.min(window.innerWidth, window.innerHeight);
-  const ratio = minSide / CONFIG.responsive.referenceWidth;
-  return Math.min(1, Math.max(CONFIG.responsive.minScale, ratio));
+  return Math.min(1, Math.max(CONFIG.responsive.minScale, _screenRatio()));
+}
+
+// 지금 화면 크기 기준으로 '이미지/크기'(밈 크기, 소환 원, 퍼즐 보드 등)에 곱해줄 비율(0~1).
+// gestureScale 과 같은 비율을 쓰지만, 손동작 오작동 걱정이 없어서 더 작은 화면까지 줄어듭니다.
+// 매 프레임 호출해도 가벼우므로(window 크기만 읽음), 화면 회전/리사이즈에도 자동으로 따라갑니다.
+export function visualScale() {
+  return Math.min(1, Math.max(CONFIG.responsive.visualMinScale, _screenRatio()));
 }

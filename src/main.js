@@ -7,7 +7,7 @@
 // 취소/뒤로는 ESC 키
 // =============================================================
 
-import { CONFIG, gestureScale } from './config.js';
+import { CONFIG, gestureScale, visualScale } from './config.js';
 import { startWebcam } from './webcam.js';
 import { createHandLandmarker } from './handTracking.js';
 import { GestureTracker } from './gestures.js';
@@ -276,7 +276,10 @@ function manageGrab(now) {
 function isNearGrabbed(cur) {
   const g = browseScene.grabbed;
   if (!g) return false;
-  const half = (CONFIG.browse.memeSize * g.scale) / 2 + CONFIG.stretch.grabNearPad;
+  // 화면이 작으면(모바일) 밈도 작게 렌더되므로, 판정 범위도 같은 비율로 줄여야
+  // 실제 보이는 크기와 어긋나지 않음.
+  const vs = visualScale();
+  const half = (CONFIG.browse.memeSize * g.scale * vs) / 2 + CONFIG.stretch.grabNearPad * vs;
   return Math.abs(cur.x - g.x) < half && Math.abs(cur.y - g.y) < half;
 }
 
@@ -368,8 +371,8 @@ function buildRevealVideos() {
     v.loop = false;
     v.preload = 'auto';             // 미리 전체 다운로드
     v.src = meme.video;
-    v.style.width = CONFIG.puzzle.boardSize + 'px';
-    v.style.height = CONFIG.puzzle.boardSize + 'px';
+    // 크기는 재생 시작 시점(showReveal)에 그 퍼즐의 실제 보드 크기로 맞춥니다.
+    // (화면 크기에 따라 보드 크기가 달라지므로 미리 고정해두지 않음)
     // 영상이 끝나면 자동으로 처음(흩어진 상태)으로 복귀
     v.addEventListener('ended', () => { if (appState === 'REVEAL') hideReveal(); });
     stageEl.appendChild(v);
@@ -393,6 +396,10 @@ function showReveal() {
   const v = revealVideos[currentMeme.id];
   if (!v) return;
   activeReveal = v;
+  // 방금까지 보던 퍼즐 보드와 같은 크기로 맞춰야 화면이 안 튀고 자연스럽게 이어짐
+  const boardSize = puzzleScene ? puzzleScene.boardSize : CONFIG.puzzle.boardSize;
+  v.style.width = boardSize + 'px';
+  v.style.height = boardSize + 'px';
   v.currentTime = 0;
   v.muted = false;                 // 소리 켜고 재생 시도
   v.style.display = 'block';

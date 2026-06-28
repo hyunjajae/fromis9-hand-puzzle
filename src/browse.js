@@ -9,7 +9,7 @@
 // =============================================================
 
 import { Assets, Container, Sprite } from 'pixi.js';
-import { CONFIG } from './config.js';
+import { CONFIG, visualScale } from './config.js';
 
 // 밈 하나. 글리치(색 어긋남)를 위해 [빨강 잔상 / 본체 / 파랑 잔상] 3겹.
 class MemeItem {
@@ -52,13 +52,16 @@ class MemeItem {
     this.scale += (this.tscale - this.scale) * k;
     this.alpha += (this.talpha - this.alpha) * k;
 
-    const sc = this.baseScale * this.scale;
+    // 화면이 작으면(모바일) 밈 자체도 비례해서 작게 — 안 그러면 작은 화면에 사진이 너무 커서
+    // 원형으로 돌리거나 흩어놓기가 잘 안 됨.
+    const vs = visualScale();
+    const sc = this.baseScale * this.scale * vs;
     this.container.x = this.x;
     this.container.y = this.y;
     this.container.scale.set(sc);
     this.container.alpha = this.alpha;
 
-    const off = glitch * CONFIG.browse.glitchMaxOffset;
+    const off = glitch * CONFIG.browse.glitchMaxOffset * vs;
     const localOff = off / (sc || 0.001);
     this.ghostR.x = -localOff;
     this.ghostB.x = localOff;
@@ -66,9 +69,9 @@ class MemeItem {
     this.ghostB.alpha = glitch * 0.6 * this.alpha;
   }
 
-  // 화면 좌표(px)가 이 밈 위에 있는지
+  // 화면 좌표(px)가 이 밈 위에 있는지 (실제 렌더 크기와 같은 비율로 판정해야 정확함)
   hitTest(px, py) {
-    const half = (CONFIG.browse.memeSize * this.scale) / 2;
+    const half = (CONFIG.browse.memeSize * this.scale * visualScale()) / 2;
     return px >= this.x - half && px <= this.x + half && py >= this.y - half && py <= this.y + half;
   }
 }
@@ -174,9 +177,12 @@ export class BrowseScene {
       if (info.bothVisible) {
         this.center.x += (info.center.x - this.center.x) * 0.2;
         this.center.y += (info.center.y - this.center.y) * 0.2;
+        // 화면이 작으면(모바일) 원 반경의 최소/최대도 같은 비율로 줄여서, 작은 화면에서도
+        // 원이 화면을 벗어나지 않고 양손 움직임만으로 적당한 크기가 되게 함.
+        const vs = visualScale();
         const want = Math.max(
-          CONFIG.summon.minRadius,
-          Math.min(CONFIG.summon.maxRadius, info.gap * CONFIG.summon.radiusFactor)
+          CONFIG.summon.minRadius * vs,
+          Math.min(CONFIG.summon.maxRadius * vs, info.gap * CONFIG.summon.radiusFactor)
         );
         this.radius += (want - this.radius) * 0.2;
       }
@@ -196,7 +202,7 @@ export class BrowseScene {
 
     } else if (this.mode === 'scattered') {
       glitch = this._speedGlitch(info.speed);
-      const amp = CONFIG.browse.floatAmplitude;
+      const amp = CONFIG.browse.floatAmplitude * visualScale();
       const sp = CONFIG.browse.floatSpeed;
       for (const it of this.items) {
         const fx = Math.sin(t * sp + it.phase) * amp;

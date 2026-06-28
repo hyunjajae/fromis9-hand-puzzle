@@ -8,7 +8,7 @@
 // =============================================================
 
 import { Container, Sprite, Texture, Rectangle, Graphics } from 'pixi.js';
-import { CONFIG } from './config.js';
+import { CONFIG, visualScale } from './config.js';
 
 export class PuzzleScene {
   /**
@@ -28,23 +28,28 @@ export class PuzzleScene {
     this.held = null; // 지금 집어 든 조각
     this.solved = false;
 
+    // 화면이 작으면(모바일) 보드 자체도 비례해서 작게 — 그대로 두면 작은 화면을
+    // 꽉 채우거나 넘쳐서 조각을 옮기기 어려움. (REVEAL 영상 크기도 이 값을 그대로 씀)
+    this.boardSize = CONFIG.puzzle.boardSize * visualScale();
+    this.gap = CONFIG.puzzle.gap * visualScale();
+
     this._build();
     this._shuffle();
   }
 
   // 보드 좌상단 좌표(화면 중앙 정렬)
   _boardOrigin() {
-    const b = CONFIG.puzzle.boardSize;
+    const b = this.boardSize;
     return { x: this.app.renderer.width / 2 - b / 2, y: this.app.renderer.height / 2 - b / 2 };
   }
   // 조각 한 칸 크기
   _cell() {
-    const b = CONFIG.puzzle.boardSize, g = CONFIG.puzzle.gap, n = this.n;
+    const b = this.boardSize, g = this.gap, n = this.n;
     return (b - g * (n - 1)) / n;
   }
   // slot(0~8) 의 화면 중심 좌표
   _slotPos(slot) {
-    const n = this.n, cell = this._cell(), g = CONFIG.puzzle.gap, o = this._boardOrigin();
+    const n = this.n, cell = this._cell(), g = this.gap, o = this._boardOrigin();
     const r = Math.floor(slot / n), c = slot % n;
     return { x: o.x + c * (cell + g) + cell / 2, y: o.y + r * (cell + g) + cell / 2 };
   }
@@ -106,8 +111,8 @@ export class PuzzleScene {
 
   // 화면 좌표가 어느 slot 위인지 (보드 밖이면 -1)
   slotAt(x, y) {
-    const n = this.n, cell = this._cell(), g = CONFIG.puzzle.gap, o = this._boardOrigin();
-    const b = CONFIG.puzzle.boardSize;
+    const n = this.n, cell = this._cell(), g = this.gap, o = this._boardOrigin();
+    const b = this.boardSize;
     if (x < o.x || x > o.x + b || y < o.y || y > o.y + b) return -1;
     const c = Math.floor((x - o.x) / (cell + g));
     const r = Math.floor((y - o.y) / (cell + g));
